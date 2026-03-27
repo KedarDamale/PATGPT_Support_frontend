@@ -1,111 +1,161 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap');
+
+@import "tailwindcss";
+
+
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  /* Brand green */
+  --color-primary-50:  #edfaf5;
+  --color-primary-100: #d1f3e5;
+  --color-primary-200: #a5e7cc;
+  --color-primary-300: #6dd4b0;
+  --color-primary-400: #34bb92;
+  --color-primary-500: #16a37a;
+  --color-primary-600: #0f8463;
+  --color-primary-700: #0c6a50;
+  --color-primary-800: #0a5240;
+  --color-primary-900: #083d30;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  /* Accent teal-blue */
+  --color-teal-50:  #edfbfb;
+  --color-teal-100: #cdf5f6;
+  --color-teal-200: #9debee;
+  --color-teal-300: #60dae0;
+  --color-teal-400: #24c4cc;
+  --color-teal-500: #0ba8b2;
+  --color-teal-600: #09889a;
+  --color-teal-700: #0a6d7d;
+  --color-teal-800: #0b5566;
+  --color-teal-900: #0c4454;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* Semantic */
+  --color-bg:        #f8fafb;
+  --color-surface:   #ffffff;
+  --color-border:    #e5e9ef;
+  --color-text:      #111827;
+  --color-muted:     #6b7280;
+  --color-heading:   #0d1117;
 
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
+  /* Scrollbar */
+  --scrollbar-track: #f1f5f9;
+  --scrollbar-thumb: #cbd5e1;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
+/* ── Dark Mode ───────────────────────────────────────────── */
+.dark {
+  --color-bg:      #0d1117;
+  --color-surface: #161b22;
+  --color-border:  rgba(255,255,255,0.07);
+  --color-text:    #e6edf3;
+  --color-muted:   #8b949e;
+  --color-heading: #f0f6fc;
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+  --scrollbar-track: #161b22;
+  --scrollbar-thumb: #30363d;
+}
+
+/* ── Base Resets ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  transition: background-color 0.3s, color 0.3s;
 }
 
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
+code, pre, .font-mono {
+  font-family: 'DM Mono', 'Fira Code', monospace;
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+/* ── Scrollbar ───────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: var(--scrollbar-track); }
+::-webkit-scrollbar-thumb  { background: var(--scrollbar-thumb); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* ── Selection ───────────────────────────────────────────── */
+::selection {
+  background-color: rgba(22, 163, 122, 0.25);
+  color: inherit;
 }
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
-  margin: 0;
+/* ── Focus ring ──────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+  border-radius: 6px;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+/* ── Keyframes ───────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-16px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.6; }
+}
+
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes ping-brand {
+  75%, 100% { transform: scale(2); opacity: 0; }
+}
+
+/* ── Utility classes (not in Tailwind by default) ─────────── */
+.animate-fade-in       { animation: fadeIn 0.35s ease both; }
+.animate-slide-in-left { animation: slideInLeft 0.3s ease both; }
+.animate-pulse-soft    { animation: pulse-soft 2s ease-in-out infinite; }
+.animate-spin-slow     { animation: spin-slow 2s linear infinite; }
+.animate-ping-brand    { animation: ping-brand 1s cubic-bezier(0,0,0.2,1) infinite; }
+
+/* ── Gradient mesh background (used in auth pages) ───────── */
+.bg-pharma-mesh {
+  background-color: var(--color-bg);
+  background-image:
+    radial-gradient(ellipse 80% 60% at 20% 20%, rgba(22,163,122,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 80%, rgba(11,168,178,0.10) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 40% at 50% 10%, rgba(22,163,122,0.06) 0%, transparent 50%);
+}
+
+/* ── Chat bubble styles ──────────────────────────────────── */
+.chat-bubble-user {
+  background: linear-gradient(135deg, #16a37a, #0f8463);
+  color: white;
+  border-radius: 18px 18px 4px 18px;
+}
+
+.chat-bubble-ai {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 18px 18px 18px 4px;
+  color: var(--color-text);
+}
+
+/* ── Loader pill animation ───────────────────────────────── */
+.loader-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #16a37a;
+  animation: pulse-soft 1.4s ease-in-out infinite;
+}
+.loader-dot:nth-child(2) { animation-delay: 0.2s; }
+.loader-dot:nth-child(3) { animation-delay: 0.4s; }
