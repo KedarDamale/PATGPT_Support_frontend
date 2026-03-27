@@ -1,29 +1,14 @@
-// App.jsx
-// ── Root router for PatGPT Support Frontend ───────────────────────────────
-//
-//  Route map
-//  /                    → Loader   (pings backend, then redirects to /login)
-//  /login               → Login
-//  /register            → Register
-//  /user/:userId        → User dashboard (protected)
-//  /user/:userId/chat/:conversationId → Chat page (protected)
-//  /admin               → Admin dashboard (protected, admin-only)
-//  *                    → 404
-
 import { BrowserRouter, Routes, Route, Navigate, useLocation, Outlet } from "react-router-dom";
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
-
+import { lazy, Suspense } from "react";
 import Loader   from "./pages/Loader";
 
-// Lazy-loaded pages — avoids loading everything on first paint
-import { lazy, Suspense } from "react";
 const Login    = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
 const User     = lazy(() => import("./pages/User"));
 const Chat     = lazy(() => import("./pages/Chat"));
 const Admin    = lazy(() => import("./pages/Admin"));
 
-// ── Auth Context ──────────────────────────────────────────────────────────
 
 const AuthContext = createContext(null);
 
