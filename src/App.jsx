@@ -7,6 +7,7 @@ const Login    = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
 const User     = lazy(() => import("./pages/User"));
 const Chat     = lazy(() => import("./pages/Chat"));
+const ChatLayout = lazy(() => import("./pages/ChatLayout"));
 const Admin    = lazy(() => import("./pages/Admin"));
 
 
@@ -160,11 +161,13 @@ export default function App() {
 
             {/* ── Protected: regular users ── */}
             <Route element={<ProtectedRoute />}>
-              {/* User dashboard — dynamic userId */}
-              <Route path="/user/:userId" element={<User />} />
+              <Route element={<ChatLayout />}>
+                {/* User dashboard / New Chat wrapper — dynamic userId */}
+                <Route path="/user/:userId" element={<User />} />
 
-              {/* Chat — dynamic userId + conversationId */}
-              <Route path="/user/:userId/chat/:conversationId" element={<Chat />} />
+                {/* Chat threaded view — dynamic userId + conversationId */}
+                <Route path="/user/:userId/chat/:conversationId" element={<Chat />} />
+              </Route>
             </Route>
 
             {/* ── Protected: admin-only ── */}

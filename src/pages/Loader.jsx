@@ -138,9 +138,7 @@ export default function Loader() {
           <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
             PatGPT <span className="text-[#16a37a]">Support</span>
           </h1>
-          <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1 font-semibold uppercase tracking-widest">
-            Pharma Intelligence Platform
-          </p>
+    
         </div>
 
         {!timedOut ? (

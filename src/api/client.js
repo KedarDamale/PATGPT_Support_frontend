@@ -29,6 +29,7 @@ client.interceptors.response.use(
       if (originalRequest.url === '/auth/refresh') {
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
+        localStorage.removeItem('patgpt_user');
         window.location.href = '/login'; 
         return Promise.reject(error);
       }
@@ -57,11 +58,13 @@ client.interceptors.response.use(
           // Refresh failed, clear tokens and redirect to login
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
+          localStorage.removeItem('patgpt_user');
           window.location.href = '/login';
           return Promise.reject(refreshError);
         }
       } else {
         localStorage.removeItem('access_token');
+        localStorage.removeItem('patgpt_user');
         window.location.href = '/login';
       }
     }
