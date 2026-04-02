@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const envUrl = import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL;
-const BASE_URL = (envUrl ? envUrl.replace(/\/$/, "") : 'http://localhost:8000');
+const BASE_URL = (envUrl ? envUrl.replace(/\/$/, "") : 'https://patgpt-support.onrender.com');
 
 const client = axios.create({
   baseURL: BASE_URL,

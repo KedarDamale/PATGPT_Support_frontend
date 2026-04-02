@@ -21,6 +21,26 @@ export default function UIGraphView() {
     const [isCreating, setIsCreating] = useState(null); // 'node' | 'edge' | null
     const [form, setForm] = useState({});
 
+    const GRAPH_STORAGE_KEY = 'uiGraphData';
+
+    const saveGraphToStorage = (nodesToSave, edgesToSave) => {
+        try {
+            localStorage.setItem(GRAPH_STORAGE_KEY, JSON.stringify({ nodes: nodesToSave, edges: edgesToSave }));
+        } catch (err) {
+            console.warn('Unable to save graph to localStorage', err);
+        }
+    };
+
+    const loadGraphFromStorage = () => {
+        try {
+            const raw = localStorage.getItem(GRAPH_STORAGE_KEY);
+            return raw ? JSON.parse(raw) : null;
+        } catch (err) {
+            console.warn('Unable to load graph from localStorage', err);
+            return null;
+        }
+    };
+
     const fetchGraph = async () => {
         setLoading(true);
         try {
@@ -64,8 +84,20 @@ export default function UIGraphView() {
                 style: { stroke: '#16a37a', strokeWidth: 2 }
             }));
 
-            setNodes(uiNodes);
-            setEdges(uiEdges);
+            if (uiNodes.length > 0 || uiEdges.length > 0) {
+                setNodes(uiNodes);
+                setEdges(uiEdges);
+                saveGraphToStorage(uiNodes, uiEdges);
+            } else {
+                const storedGraph = loadGraphFromStorage();
+                if (storedGraph?.nodes?.length || storedGraph?.edges?.length) {
+                    setNodes(storedGraph.nodes || []);
+                    setEdges(storedGraph.edges || []);
+                } else {
+                    setNodes(uiNodes);
+                    setEdges(uiEdges);
+                }
+            }
         } catch (err) {
             console.error("Failed to fetch graph data", err);
         } finally {
