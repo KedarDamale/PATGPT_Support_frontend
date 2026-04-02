@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { uiGraphApi } from "../../api";
-import { 
+import {
     ReactFlow, Controls, Background, MiniMap,
     applyNodeChanges, applyEdgeChanges
 } from "@xyflow/react";
-import '@xyflow/react/dist/style.css'; 
+import '@xyflow/react/dist/style.css';
 import { X, Edit2, Plus, LayoutTemplate, Link as LinkIcon, Save, Trash2 } from "lucide-react";
 
 export default function UIGraphView() {
@@ -16,7 +16,7 @@ export default function UIGraphView() {
     // Sidebar / Editor state
     const [selectedElement, setSelectedElement] = useState(null); // { type: 'node' | 'edge', data: backendData }
     const [isEditing, setIsEditing] = useState(false);
-    
+
     // Creation State
     const [isCreating, setIsCreating] = useState(null); // 'node' | 'edge' | null
     const [form, setForm] = useState({});
@@ -28,12 +28,12 @@ export default function UIGraphView() {
                 uiGraphApi.getNodes(),
                 uiGraphApi.getEdges()
             ]);
-            
+
             const uiNodes = fetchedNodes.map((n, i) => {
                 const cols = 5;
                 const x = (i % cols) * 280;
                 const y = Math.floor(i / cols) * 160;
-                
+
                 return {
                     id: String(n.id),
                     position: { x, y },
@@ -58,7 +58,7 @@ export default function UIGraphView() {
                 id: String(e.id),
                 source: String(e.from_node),
                 target: String(e.to_node),
-                label: e.action, 
+                label: e.action,
                 data: { backendData: e },
                 animated: true,
                 style: { stroke: '#16a37a', strokeWidth: 2 }
@@ -108,6 +108,7 @@ export default function UIGraphView() {
             node_type: "page",
             node_info: "",
             tags: [],
+            tagsRaw: "",
             scroll_count: 1
         });
     };
@@ -128,14 +129,30 @@ export default function UIGraphView() {
     const openEdit = () => {
         if (!selectedElement) return;
         setIsEditing(true);
-        setForm({ ...selectedElement.data });
+        setForm({
+            ...selectedElement.data,
+            tagsRaw: (selectedElement.data.tags || []).join(', ')
+        });
+    };
+
+    const parseTagsString = (value) => {
+        return String(value || '')
+            .split(',')
+            .map((tag) => tag.trim())
+            .filter(Boolean);
     };
 
     const handleSave = async (e) => {
         e.preventDefault();
         try {
+            const { tagsRaw, ...payloadRest } = form;
+            const nodePayload = {
+                ...payloadRest,
+                tags: parseTagsString(tagsRaw ?? (form.tags || []).join(', '))
+            };
+
             if (isCreating === 'node') {
-                await uiGraphApi.createNode(form);
+                await uiGraphApi.createNode(nodePayload);
             } else if (isCreating === 'edge') {
                 await uiGraphApi.createEdge(form);
             } else if (isEditing && selectedElement) {
@@ -144,7 +161,7 @@ export default function UIGraphView() {
                     await uiGraphApi.updateNode(selectedElement.data.id, {
                         node_name: form.node_name,
                         node_info: form.node_info,
-                        tags: form.tags,
+                        tags: parseTagsString(form.tagsRaw ?? (form.tags || []).join(', ')),
                         scroll_count: form.scroll_count
                     });
                 } else {
@@ -155,7 +172,7 @@ export default function UIGraphView() {
                     });
                 }
             }
-            await fetchGraph(); 
+            await fetchGraph();
             setIsEditing(false);
             setIsCreating(null);
             setSelectedElement(null);
@@ -191,22 +208,21 @@ export default function UIGraphView() {
 
     // Parse Comma separated Tags for Form
     const handleTagsChange = (val) => {
-        const arr = val.split(',').map(t => t.trim()).filter(Boolean);
-        setForm({ ...form, tags: arr });
+        setForm({ ...form, tagsRaw: val });
     };
 
     return (
         <div className="flex w-full h-full relative overflow-hidden bg-gray-50 dark:bg-[#0d1117]">
             {/* Top Toolbar (Floating inside graph view) */}
             <div className="absolute top-4 left-4 z-10 flex gap-3 shadow-md rounded-xl bg-white/90 dark:bg-[#161b22]/90 backdrop-blur-md border border-gray-200 dark:border-white/10 p-2">
-                <button 
-                    onClick={openCreateNode} 
+                <button
+                    onClick={openCreateNode}
                     className="flex items-center gap-2 px-3 py-1.5 text-sm font-semibold rounded-lg bg-[#16a37a]/10 text-[#16a37a] hover:bg-[#16a37a]/20 transition-colors"
                 >
                     <Plus className="w-4 h-4" /> Node
                 </button>
-                <button 
-                    onClick={openCreateEdge} 
+                <button
+                    onClick={openCreateEdge}
                     className="flex items-center gap-2 px-3 py-1.5 text-sm font-semibold rounded-lg bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 transition-colors"
                 >
                     <Plus className="w-4 h-4" /> Edge
@@ -217,7 +233,7 @@ export default function UIGraphView() {
             <div className="flex-1 h-full relative z-0">
                 {loading && nodes.length === 0 ? (
                     <div className="absolute inset-0 flex items-center justify-center z-10 bg-white/50 dark:bg-black/50 backdrop-blur-sm">
-                         <div className="w-10 h-10 rounded-full border-2 border-gray-200 dark:border-white/10 border-t-[#16a37a] animate-spin" />
+                        <div className="w-10 h-10 rounded-full border-2 border-gray-200 dark:border-white/10 border-t-[#16a37a] animate-spin" />
                     </div>
                 ) : (
                     <ReactFlow
@@ -232,7 +248,7 @@ export default function UIGraphView() {
                     >
                         <Background color="#ccc" gap={20} size={1.5} />
                         <Controls className="bg-white dark:bg-[#161b22] dark:border-white/10 fill-gray-600 dark:fill-gray-300 shadow-lg" />
-                        <MiniMap 
+                        <MiniMap
                             nodeStrokeColor="#16a37a"
                             nodeColor="#ffffff"
                             maskColor="rgba(0,0,0, 0.1)"
@@ -282,7 +298,7 @@ export default function UIGraphView() {
                                                 {selectedElement.data.node_info}
                                             </div>
                                         </div>
-                                         <div className="grid grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-2 gap-4">
                                             <div>
                                                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1.5">Type</span>
                                                 <div className="text-sm text-gray-800 dark:text-gray-200 font-medium bg-gray-50 dark:bg-white/5 px-3 py-2 rounded-xl border border-gray-100 dark:border-white/10">
@@ -358,16 +374,16 @@ export default function UIGraphView() {
                                             <>
                                                 <div>
                                                     <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest dark:text-gray-400 mb-1.5">Node ID</label>
-                                                    <input 
+                                                    <input
                                                         required className="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#16a37a] font-mono"
-                                                        value={form.id || ''} onChange={e => setForm({...form, id: e.target.value})}
+                                                        value={form.id || ''} onChange={e => setForm({ ...form, id: e.target.value })}
                                                     />
                                                 </div>
                                                 <div>
                                                     <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest dark:text-gray-400 mb-1.5">Type</label>
-                                                    <select 
+                                                    <select
                                                         required className="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#16a37a]"
-                                                        value={form.node_type || 'page'} onChange={e => setForm({...form, node_type: e.target.value})}
+                                                        value={form.node_type || 'page'} onChange={e => setForm({ ...form, node_type: e.target.value })}
                                                     >
                                                         <option value="page">Page</option>
                                                         <option value="button">Button</option>
@@ -380,32 +396,32 @@ export default function UIGraphView() {
                                         )}
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest dark:text-gray-400 mb-1.5">Name</label>
-                                            <input 
+                                            <input
                                                 required className="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#16a37a]"
-                                                value={form.node_name || ''} onChange={e => setForm({...form, node_name: e.target.value})}
+                                                value={form.node_name || ''} onChange={e => setForm({ ...form, node_name: e.target.value })}
                                             />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest dark:text-gray-400 mb-1.5">Info / Content</label>
-                                            <textarea 
+                                            <textarea
                                                 rows={5} required className="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#16a37a] resize-none leading-relaxed"
-                                                value={form.node_info || ''} onChange={e => setForm({...form, node_info: e.target.value})}
+                                                value={form.node_info || ''} onChange={e => setForm({ ...form, node_info: e.target.value })}
                                             />
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest dark:text-gray-400 mb-1.5">Scrolls</label>
-                                                <input 
+                                                <input
                                                     type="number" min={1} max={10} required className="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#16a37a]"
-                                                    value={form.scroll_count || ''} onChange={e => setForm({...form, scroll_count: parseInt(e.target.value, 10)})}
+                                                    value={form.scroll_count || ''} onChange={e => setForm({ ...form, scroll_count: parseInt(e.target.value, 10) })}
                                                 />
                                             </div>
                                             <div>
                                                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest dark:text-gray-400 mb-1.5">Tags (csv)</label>
-                                                <input 
+                                                <input
                                                     className="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#16a37a]"
                                                     placeholder="tag1, tag2"
-                                                    value={(form.tags || []).join(', ')} onChange={e => handleTagsChange(e.target.value)}
+                                                    value={form.tagsRaw || ''} onChange={e => handleTagsChange(e.target.value)}
                                                 />
                                             </div>
                                         </div>
@@ -416,17 +432,17 @@ export default function UIGraphView() {
                                             <>
                                                 <div>
                                                     <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest dark:text-gray-400 mb-1.5">Edge ID</label>
-                                                    <input 
+                                                    <input
                                                         required className="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#16a37a] font-mono"
-                                                        value={form.id || ''} onChange={e => setForm({...form, id: e.target.value})}
+                                                        value={form.id || ''} onChange={e => setForm({ ...form, id: e.target.value })}
                                                     />
                                                 </div>
                                                 <div className="grid grid-cols-1 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-200 dark:bg-white/[0.02] dark:border-white/10">
                                                     <div>
                                                         <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest dark:text-gray-400 mb-1.5">Source Node ID</label>
-                                                        <select 
+                                                        <select
                                                             required className="w-full bg-white dark:bg-[#161b22] border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#16a37a] font-mono text-xs"
-                                                            value={form.from_node || ''} onChange={e => setForm({...form, from_node: e.target.value})}
+                                                            value={form.from_node || ''} onChange={e => setForm({ ...form, from_node: e.target.value })}
                                                         >
                                                             {nodes.map(n => <option key={n.id} value={n.id}>{n.id} ({n.data.label})</option>)}
                                                         </select>
@@ -434,9 +450,9 @@ export default function UIGraphView() {
                                                     <div className="flex justify-center -my-3 relative z-10"><LinkIcon className="w-5 h-5 text-gray-300 bg-white dark:bg-[#161b22] px-1" /></div>
                                                     <div>
                                                         <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest dark:text-gray-400 mb-1.5">Target Node ID</label>
-                                                        <select 
+                                                        <select
                                                             required className="w-full bg-white dark:bg-[#161b22] border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#16a37a] font-mono text-xs"
-                                                            value={form.to_node || ''} onChange={e => setForm({...form, to_node: e.target.value})}
+                                                            value={form.to_node || ''} onChange={e => setForm({ ...form, to_node: e.target.value })}
                                                         >
                                                             {nodes.map(n => <option key={n.id} value={n.id}>{n.id} ({n.data.label})</option>)}
                                                         </select>
@@ -446,9 +462,9 @@ export default function UIGraphView() {
                                         )}
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest dark:text-gray-400 mb-1.5">Action</label>
-                                            <select 
+                                            <select
                                                 required className="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#16a37a]"
-                                                value={form.action || ''} onChange={e => setForm({...form, action: e.target.value})}
+                                                value={form.action || ''} onChange={e => setForm({ ...form, action: e.target.value })}
                                             >
                                                 <option value="click">click</option>
                                                 <option value="type">type</option>
@@ -459,9 +475,9 @@ export default function UIGraphView() {
                                         </div>
                                         <div>
                                             <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest dark:text-gray-400 mb-1.5">Weight</label>
-                                            <input 
+                                            <input
                                                 type="number" min={1} max={10} required className="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#16a37a]"
-                                                value={form.weight || ''} onChange={e => setForm({...form, weight: parseInt(e.target.value, 10)})}
+                                                value={form.weight || ''} onChange={e => setForm({ ...form, weight: parseInt(e.target.value, 10) })}
                                             />
                                         </div>
                                     </>
