@@ -3,6 +3,8 @@ import client from './client';
 export const chatApi = { 
   chatRest: (data) => client.post('/chat/rest', data).then(res => res.data),
   
+  approveChat: (thread_id, approved) => client.post('/chat/approval', { thread_id }, { params: { approved } }).then(res => res.data),
+  
   // Note: For SSE or streaming, you often use EventSource or fetch natively in the UI.
   // Using axios config for streams where applicable.
   chatStream: (data, config) => client.post('/chat/stream', data, { 
@@ -38,23 +40,33 @@ export const chatApi = {
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
+      let buffer = ""; // Correctly handle partial lines across chunks
 
       while (true) {
         const { value, done } = await reader.read();
         if (done) break;
         
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n');
-        
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop(); // Keep partial line for next chunk
+
         for (const line of lines) {
           if (line.startsWith('data: ')) {
-            const content = line.slice(6).trim();
-            if (content === '[DONE]') {
+            let content = line.slice(6); // Preserve spaces
+            
+            if (content.trim() === '[DONE]') {
               onMessage({ done: true });
             } else if (content) {
-              // Unescape newlines if backend escaped them
-              const unescaped = content.replace(/\\n/g, '\n');
-              onMessage({ content: unescaped });
+              // Aggressively strip out any debug or metadata patterns (including __THREAD_ID__)
+              content = content.replace(/(__)?THREAD_ID(__)?:\s*[a-zA-Z0-9-]+/gi, '');
+              content = content.replace(/No memory to store\.?/gi, '');
+              content = content.replace(/Nomemory/gi, '');
+              
+              const trimmed = content.trim();
+              if (trimmed) {
+                const unescaped = content.replace(/\\n/g, '\n');
+                onMessage({ content: unescaped });
+              }
             }
           }
         }

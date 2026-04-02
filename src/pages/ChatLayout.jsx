@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, Outlet, useNavigate, useParams, useLocation } from "react-router-dom";
 import { conversationsApi } from "../api";
 import { useAuth, toggleTheme } from "../App";
-import { MessageSquare, Plus, Menu, X, LogOut, Sun, Moon, Hash } from "lucide-react";
+import { MessageSquare, Plus, Menu, X, LogOut, Sun, Moon, Hash, Trash2, Ticket } from "lucide-react";
 
 export default function ChatLayout() {
     const { user, logout } = useAuth();
@@ -36,6 +36,23 @@ export default function ChatLayout() {
     const handleThemeToggle = () => {
         toggleTheme();
         setIsDark(document.documentElement.classList.contains("dark"));
+    };
+
+    const handleDeleteConversation = async (e, id) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!window.confirm("Are you sure you want to delete this conversation?")) return;
+        
+        try {
+            await conversationsApi.deleteConversation(id);
+            setConversations(prev => prev.filter(c => c.id !== id));
+            if (id === conversationId) {
+                navigate(`/user/${userId}`);
+            }
+        } catch (err) {
+            console.error("Failed to delete conversation", err);
+            alert("Failed to delete conversation.");
+        }
     };
 
     return (
@@ -101,12 +118,21 @@ export default function ChatLayout() {
                                     to={`/user/${userId}/chat/${c.id}`}
                                     onClick={() => setSidebarOpen(false)}
                                     className={`
-                                        flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all text-left overflow-hidden group
+                                        flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-sm transition-all text-left overflow-hidden group
                                         ${isActive ? 'bg-[#16a37a]/10 text-[#16a37a] dark:bg-[#16a37a]/15 font-medium' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200/50 dark:hover:bg-white/5 font-medium'}
                                     `}
                                 >
-                                    <MessageSquare className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#16a37a]' : 'text-gray-400 group-hover:text-gray-500 dark:text-gray-500 dark:group-hover:text-gray-400'}`} />
-                                    <span className="truncate">{c.title || `Chat ${c.id.substring(0, 8)}`}</span>
+                                    <div className="flex items-center gap-3 truncate">
+                                        <MessageSquare className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#16a37a]' : 'text-gray-400 group-hover:text-gray-500 dark:text-gray-500 dark:group-hover:text-gray-400'}`} />
+                                        <span className="truncate">{c.title || `Chat ${c.id.substring(0, 8)}`}</span>
+                                    </div>
+                                    
+                                    <button 
+                                        onClick={(e) => handleDeleteConversation(e, c.id)}
+                                        className="opacity-0 group-hover:opacity-100 p-1 rounded-md hover:bg-red-50 dark:hover:bg-red-500/20 text-gray-400 hover:text-red-500 transition-all shrink-0"
+                                    >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
                                 </Link>
                             );
                         })
@@ -119,6 +145,10 @@ export default function ChatLayout() {
                         {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                         {isDark ? "Light Mode" : "Dark Mode"}
                     </button>
+                    <Link to={`/user/${userId}/tickets`} className="flex items-center gap-3 px-3 py-2.5 hover:bg-gray-200/50 dark:hover:bg-white/5 rounded-lg text-gray-600 dark:text-gray-400 transition-colors">
+                        <Ticket className="w-4 h-4" />
+                        My Tickets
+                    </Link>
                     {user?.role === 'admin' && (
                         <Link to="/admin" className="flex items-center gap-3 px-3 py-2.5 hover:bg-gray-200/50 dark:hover:bg-white/5 rounded-lg text-gray-600 dark:text-gray-400 transition-colors">
                              <Hash className="w-4 h-4" />

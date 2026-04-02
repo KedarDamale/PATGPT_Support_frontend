@@ -126,6 +126,58 @@ code, pre, .font-mono {
 .animate-spin-slow     { animation: spin-slow 2s linear infinite; }
 .animate-ping-brand    { animation: ping-brand 1s cubic-bezier(0,0,0.2,1) infinite; }
 
+/* ── Markdown / Prose Styling ───────────────────────────── */
+.prose {
+  color: inherit;
+  font-size: 15.5px;
+  line-height: 1.625;
+}
+.prose p { margin-top: 0; margin-bottom: 1rem; }
+.prose p:last-child { margin-bottom: 0; }
+.prose strong { font-weight: 700; color: inherit; }
+.prose code { 
+  font-family: var(--font-mono); 
+  background: rgba(0,0,0,0.06); 
+  padding: 0.15rem 0.35rem; 
+  border-radius: 6px; 
+  font-size: 0.875em;
+  color: #d63384; /* Classic code color */
+}
+.dark .prose code { background: rgba(255,255,255,0.1); color: #f87171; }
+.prose pre {
+  background: #0d1117;
+  color: #e6edf3;
+  padding: 1.25rem;
+  border-radius: 12px;
+  overflow-x: auto;
+  margin: 1.25rem 0;
+  border: 1px solid rgba(255,255,255,0.1);
+  font-size: 0.9em;
+  line-height: 1.5;
+}
+.prose ul, .prose ol { margin: 1rem 0; padding-left: 1.75rem; }
+.prose li { margin-bottom: 0.5rem; }
+.prose h1, .prose h2, .prose h3 { 
+  font-weight: 700; 
+  color: var(--color-heading); 
+  margin: 1.75rem 0 1rem; 
+  line-height: 1.3;
+}
+.prose h1 { font-size: 1.75rem; border-bottom: 1px solid var(--color-border); padding-bottom: 0.5rem; }
+.prose h2 { font-size: 1.5rem; }
+.prose h3 { font-size: 1.25rem; }
+.prose a { color: var(--color-primary-500); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 0.2s; }
+.prose a:hover { border-bottom-color: currentColor; }
+.prose blockquote {
+  border-left: 4.5px solid var(--color-primary-400);
+  background: rgba(22, 163, 122, 0.04);
+  margin: 1.25rem 0;
+  padding: 1rem 1.25rem;
+  font-style: italic;
+  border-radius: 0 10px 10px 0;
+  color: var(--color-muted);
+}
+
 /* ── Gradient mesh background (used in auth pages) ───────── */
 .bg-pharma-mesh {
   background-color: var(--color-bg);

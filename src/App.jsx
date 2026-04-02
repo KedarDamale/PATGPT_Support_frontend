@@ -9,6 +9,7 @@ const User     = lazy(() => import("./pages/User"));
 const Chat     = lazy(() => import("./pages/Chat"));
 const ChatLayout = lazy(() => import("./pages/ChatLayout"));
 const Admin    = lazy(() => import("./pages/Admin"));
+const Tickets  = lazy(() => import("./pages/Tickets"));
 
 
 const AuthContext = createContext(null);
@@ -167,6 +168,9 @@ export default function App() {
 
                 {/* Chat threaded view — dynamic userId + conversationId */}
                 <Route path="/user/:userId/chat/:conversationId" element={<Chat />} />
+
+                {/* My Tickets */}
+                <Route path="/user/:userId/tickets" element={<Tickets />} />
               </Route>
             </Route>
 
