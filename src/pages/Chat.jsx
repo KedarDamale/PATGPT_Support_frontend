@@ -110,7 +110,7 @@ const renderAiContent = (content) => {
                                 }));
 
                                 return (
-                                    <div key={idx} className="w-full max-w-2xl mx-auto">
+                                    <div key={idx} className="w-full max-w-4xl mx-auto">
                                         <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">{chart_title}</p>
                                         <Scatter data={{ datasets }} options={{ responsive: true, plugins: { legend: { position: 'top' }, title: { display: !!chart_title, text: chart_title } } }} />
                                     </div>
@@ -160,7 +160,7 @@ const renderAiContent = (content) => {
                             };
 
                             return (
-                                <div key={idx} className="w-full max-w-2xl mx-auto">
+                                <div key={idx} className="w-full max-w-4xl mx-auto">
                                     <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">{chart_title}</p>
                                     {chart_type === 'bar' && <Bar data={chartData} options={options} />}
                                     {chart_type === 'line' && <Line data={chartData} options={options} />}
